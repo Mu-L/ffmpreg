@@ -1,7 +1,7 @@
 use crate::core::{Frame, Packet};
-use std::io::Result;
+use crate::io::IoResult;
 
 pub trait Decoder {
-	fn decode(&mut self, packet: Packet) -> Result<Option<Frame>>;
-	fn flush(&mut self) -> Result<Option<Frame>>;
+	fn decode(&mut self, packet: Packet) -> IoResult<Option<Frame>>;
+	fn flush(&mut self) -> IoResult<Option<Frame>>;
 }

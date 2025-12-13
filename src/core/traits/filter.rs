@@ -1,7 +1,7 @@
 use crate::core::Frame;
-use std::io::Result;
+use crate::io::IoResult;
 
 pub trait Transform: Send {
-	fn apply(&mut self, frame: Frame) -> Result<Frame>;
+	fn apply(&mut self, frame: Frame) -> IoResult<Frame>;
 	fn name(&self) -> &'static str;
 }
