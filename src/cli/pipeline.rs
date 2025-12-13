@@ -1,9 +1,9 @@
 use crate::codecs::{PcmDecoder, PcmEncoder, RawVideoDecoder, RawVideoEncoder};
 use crate::container::{WavReader, WavWriter, Y4mReader, Y4mWriter};
 use crate::core::{Decoder, Demuxer, Encoder, Muxer, Timebase, Transform};
+use crate::io::{BufferedWriter, IoError, IoErrorKind, IoResult, MediaRead, MediaWrite};
 use crate::transform::{TransformChain, parse_transform};
 use std::fs::File;
-use std::io::{BufWriter, Result};
 use std::path::Path;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,6 +24,48 @@ impl MediaType {
 	}
 }
 
+pub struct FileAdapter {
+	file: File,
+}
+
+impl FileAdapter {
+	pub fn open(path: &str) -> IoResult<Self> {
+		let file = File::open(path)?;
+		Ok(Self { file })
+	}
+
+	pub fn create(path: &str) -> IoResult<Self> {
+		let file = File::create(path)?;
+		Ok(Self { file })
+	}
+}
+
+impl MediaRead for FileAdapter {
+	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+		use std::io::Read;
+		self.file.read(buf).map_err(IoError::from)
+	}
+}
+
+impl MediaWrite for FileAdapter {
+	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+		use std::io::Write;
+		self.file.write(buf).map_err(IoError::from)
+	}
+
+	fn flush(&mut self) -> IoResult<()> {
+		use std::io::Write;
+		self.file.flush().map_err(IoError::from)
+	}
+}
+
+impl crate::io::MediaSeek for FileAdapter {
+	fn seek(&mut self, pos: crate::io::SeekFrom) -> IoResult<u64> {
+		use std::io::Seek;
+		self.file.seek(pos.into()).map_err(IoError::from)
+	}
+}
+
 pub struct Pipeline {
 	input_path: String,
 	output_path: Option<String>,
@@ -41,7 +83,11 @@ impl Pipeline {
 		Self { input_path, output_path, show_mode, transforms }
 	}
 
-	pub fn run(&self) -> Result<()> {
+	pub fn run(&self) -> std::io::Result<()> {
+		self.run_io().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))
+	}
+
+	fn run_io(&self) -> IoResult<()> {
 		let media_type = MediaType::from_extension(&self.input_path);
 
 		match media_type {
@@ -59,15 +105,14 @@ impl Pipeline {
 					self.run_y4m_transcode()
 				}
 			}
-			MediaType::Unknown => Err(std::io::Error::new(
-				std::io::ErrorKind::InvalidInput,
-				format!("unsupported file format: {}", self.input_path),
-			)),
+			MediaType::Unknown => {
+				Err(IoError::with_message(IoErrorKind::InvalidData, "unsupported file format"))
+			}
 		}
 	}
 
-	fn run_wav_show(&self) -> Result<()> {
-		let input = File::open(&self.input_path)?;
+	fn run_wav_show(&self) -> IoResult<()> {
+		let input = FileAdapter::open(&self.input_path)?;
 		let mut reader = WavReader::new(input)?;
 		let format = reader.format();
 		let mut decoder = PcmDecoder::new(format);
@@ -91,16 +136,16 @@ impl Pipeline {
 		Ok(())
 	}
 
-	fn run_wav_transcode(&self) -> Result<()> {
+	fn run_wav_transcode(&self) -> IoResult<()> {
 		let output_path = self.output_path.as_ref().ok_or_else(|| {
-			std::io::Error::new(std::io::ErrorKind::InvalidInput, "output path required for transcoding")
+			IoError::with_message(IoErrorKind::InvalidData, "output path required for transcoding")
 		})?;
 
-		let input = File::open(&self.input_path)?;
+		let input = FileAdapter::open(&self.input_path)?;
 		let mut reader = WavReader::new(input)?;
 		let format = reader.format();
 
-		let output = File::create(output_path)?;
+		let output = FileAdapter::create(output_path)?;
 		let mut writer = WavWriter::new(output, format)?;
 
 		let mut decoder = PcmDecoder::new(format);
@@ -132,8 +177,8 @@ impl Pipeline {
 		Ok(())
 	}
 
-	fn run_y4m_show(&self) -> Result<()> {
-		let input = File::open(&self.input_path)?;
+	fn run_y4m_show(&self) -> IoResult<()> {
+		let input = FileAdapter::open(&self.input_path)?;
 		let mut reader = Y4mReader::new(input)?;
 		let format = reader.format();
 		let mut decoder = RawVideoDecoder::new(format.clone());
@@ -162,17 +207,17 @@ impl Pipeline {
 		Ok(())
 	}
 
-	fn run_y4m_transcode(&self) -> Result<()> {
+	fn run_y4m_transcode(&self) -> IoResult<()> {
 		let output_path = self.output_path.as_ref().ok_or_else(|| {
-			std::io::Error::new(std::io::ErrorKind::InvalidInput, "output path required for transcoding")
+			IoError::with_message(IoErrorKind::InvalidData, "output path required for transcoding")
 		})?;
 
-		let input = File::open(&self.input_path)?;
+		let input = FileAdapter::open(&self.input_path)?;
 		let mut reader = Y4mReader::new(input)?;
 		let format = reader.format();
 
-		let output = File::create(output_path)?;
-		let buf_writer = BufWriter::new(output);
+		let output = FileAdapter::create(output_path)?;
+		let buf_writer: BufferedWriter<FileAdapter> = BufferedWriter::new(output);
 		let mut writer = Y4mWriter::new(buf_writer, format.clone())?;
 
 		let timebase = Timebase::new(format.framerate_den, format.framerate_num);
@@ -214,7 +259,7 @@ impl BatchPipeline {
 		Self { input_pattern, output_dir, show_mode, transforms }
 	}
 
-	pub fn run(&self) -> Result<()> {
+	pub fn run(&self) -> std::io::Result<()> {
 		let files = self.expand_glob()?;
 
 		if files.is_empty() {
@@ -251,7 +296,7 @@ impl BatchPipeline {
 		Ok(())
 	}
 
-	fn expand_glob(&self) -> Result<Vec<String>> {
+	fn expand_glob(&self) -> std::io::Result<Vec<String>> {
 		let mut files = Vec::new();
 
 		if self.input_pattern.contains('*') {
