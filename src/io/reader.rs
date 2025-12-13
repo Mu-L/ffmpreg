@@ -265,3 +265,70 @@ impl MediaRead for &[u8] {
 		Ok(amt)
 	}
 }
+
+pub struct BufferedWriter<W, const N: usize = DEFAULT_BUFFER_SIZE> {
+	inner: W,
+	buffer: Vec<u8>,
+}
+
+impl<W, const N: usize> BufferedWriter<W, N> {
+	pub fn new(inner: W) -> Self {
+		Self { inner, buffer: Vec::with_capacity(N) }
+	}
+
+	#[inline]
+	pub fn into_inner(self) -> W {
+		self.inner
+	}
+
+	#[inline]
+	pub const fn get_ref(&self) -> &W {
+		&self.inner
+	}
+
+	#[inline]
+	pub fn get_mut(&mut self) -> &mut W {
+		&mut self.inner
+	}
+
+	#[inline]
+	pub const fn capacity(&self) -> usize {
+		N
+	}
+}
+
+impl<W: crate::io::MediaWrite, const N: usize> BufferedWriter<W, N> {
+	fn flush_buf(&mut self) -> IoResult<()> {
+		if !self.buffer.is_empty() {
+			let mut written = 0;
+			while written < self.buffer.len() {
+				match self.inner.write(&self.buffer[written..]) {
+					Ok(0) => return Err(IoError::write_zero()),
+					Ok(n) => written += n,
+					Err(e) if matches!(e.kind(), crate::io::IoErrorKind::Interrupted) => continue,
+					Err(e) => return Err(e),
+				}
+			}
+			self.buffer.clear();
+		}
+		Ok(())
+	}
+}
+
+impl<W: crate::io::MediaWrite, const N: usize> crate::io::MediaWrite for BufferedWriter<W, N> {
+	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+		if self.buffer.len() + buf.len() > N {
+			self.flush_buf()?;
+		}
+		if buf.len() >= N {
+			return self.inner.write(buf);
+		}
+		self.buffer.extend_from_slice(buf);
+		Ok(buf.len())
+	}
+
+	fn flush(&mut self) -> IoResult<()> {
+		self.flush_buf()?;
+		self.inner.flush()
+	}
+}
