@@ -1,19 +1,19 @@
 use super::WavFormat;
 use crate::core::{Muxer, Packet};
-use std::io::{Result, Seek, SeekFrom, Write};
+use crate::io::{IoResult, MediaSeek, MediaWrite, SeekFrom, WritePrimitives};
 
-pub struct WavWriter<W: Write + Seek> {
+pub struct WavWriter<W: MediaWrite + MediaSeek> {
 	writer: W,
 	data_size: u32,
 }
 
-impl<W: Write + Seek> WavWriter<W> {
-	pub fn new(mut writer: W, format: WavFormat) -> Result<Self> {
+impl<W: MediaWrite + MediaSeek> WavWriter<W> {
+	pub fn new(mut writer: W, format: WavFormat) -> IoResult<Self> {
 		Self::write_header(&mut writer, format, 0)?;
 		Ok(Self { writer, data_size: 0 })
 	}
 
-	fn write_header(writer: &mut W, format: WavFormat, data_size: u32) -> Result<()> {
+	fn write_header(writer: &mut W, format: WavFormat, data_size: u32) -> IoResult<()> {
 		let byte_rate = format.sample_rate * format.bytes_per_frame() as u32;
 		let block_align = format.bytes_per_frame() as u16;
 
@@ -37,14 +37,14 @@ impl<W: Write + Seek> WavWriter<W> {
 	}
 }
 
-impl<W: Write + Seek> Muxer for WavWriter<W> {
-	fn write_packet(&mut self, packet: Packet) -> Result<()> {
+impl<W: MediaWrite + MediaSeek> Muxer for WavWriter<W> {
+	fn write_packet(&mut self, packet: Packet) -> IoResult<()> {
 		self.writer.write_all(&packet.data)?;
 		self.data_size += packet.size() as u32;
 		Ok(())
 	}
 
-	fn finalize(&mut self) -> Result<()> {
+	fn finalize(&mut self) -> IoResult<()> {
 		let current_pos = self.writer.stream_position()?;
 		self.writer.seek(SeekFrom::Start(4))?;
 		self.writer.write_all(&(36 + self.data_size).to_le_bytes())?;
