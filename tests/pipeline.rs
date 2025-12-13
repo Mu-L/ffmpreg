@@ -3,6 +3,7 @@ mod codecs;
 mod common;
 mod container;
 mod core;
+mod io;
 mod transform;
 
 use ffmpreg::codecs::{PcmDecoder, PcmEncoder, RawVideoDecoder, RawVideoEncoder};
