@@ -1,6 +1,6 @@
 use ffmpreg::container::{Y4mReader, Y4mWriter};
 use ffmpreg::core::{Demuxer, Muxer, Packet, Timebase};
-use std::io::{BufWriter, Cursor};
+use ffmpreg::io::{BufferedWriter, Cursor};
 
 fn create_test_y4m() -> Vec<u8> {
 	let width: u32 = 8;
@@ -130,7 +130,7 @@ fn test_y4m_writer_basic() {
 	let format = reader.format();
 
 	let output_buffer = Cursor::new(Vec::new());
-	let buf_writer = BufWriter::new(output_buffer);
+	let buf_writer: BufferedWriter<Cursor<Vec<u8>>> = BufferedWriter::new(output_buffer);
 	let mut writer = Y4mWriter::new(buf_writer, format).unwrap();
 
 	let timebase = Timebase::new(1, 30);
@@ -149,7 +149,7 @@ fn test_y4m_roundtrip() {
 	let format = reader.format();
 
 	let output_buffer = Cursor::new(Vec::new());
-	let buf_writer = BufWriter::new(output_buffer);
+	let buf_writer: BufferedWriter<Cursor<Vec<u8>>> = BufferedWriter::new(output_buffer);
 	let mut writer = Y4mWriter::new(buf_writer, format).unwrap();
 
 	let mut frame_count = 0;
@@ -170,7 +170,7 @@ fn test_y4m_roundtrip_preserves_aspect_ratio() {
 	let format = reader.format();
 
 	let output_buffer = Cursor::new(Vec::new());
-	let buf_writer = BufWriter::new(output_buffer);
+	let buf_writer: BufferedWriter<Cursor<Vec<u8>>> = BufferedWriter::new(output_buffer);
 	let mut writer = Y4mWriter::new(buf_writer, format.clone()).unwrap();
 
 	while let Some(packet) = reader.read_packet().unwrap() {
