@@ -1,5 +1,5 @@
 use ffmpreg::core::{Decoder, Demuxer, Encoder, Frame, Muxer, Packet, Timebase, Transform};
-use std::io::Result;
+use ffmpreg::io::IoResult;
 
 struct MockDemuxer {
 	packets: Vec<Packet>,
@@ -7,7 +7,7 @@ struct MockDemuxer {
 }
 
 impl Demuxer for MockDemuxer {
-	fn read_packet(&mut self) -> Result<Option<Packet>> {
+	fn read_packet(&mut self) -> IoResult<Option<Packet>> {
 		if self.index < self.packets.len() {
 			let pkt = self.packets[self.index].clone();
 			self.index += 1;
@@ -27,12 +27,12 @@ struct MockMuxer {
 }
 
 impl Muxer for MockMuxer {
-	fn write_packet(&mut self, packet: Packet) -> Result<()> {
+	fn write_packet(&mut self, packet: Packet) -> IoResult<()> {
 		self.packets.push(packet);
 		Ok(())
 	}
 
-	fn finalize(&mut self) -> Result<()> {
+	fn finalize(&mut self) -> IoResult<()> {
 		Ok(())
 	}
 }
@@ -40,12 +40,12 @@ impl Muxer for MockMuxer {
 struct MockDecoder;
 
 impl Decoder for MockDecoder {
-	fn decode(&mut self, packet: Packet) -> Result<Option<Frame>> {
+	fn decode(&mut self, packet: Packet) -> IoResult<Option<Frame>> {
 		let frame = Frame::new(packet.data, packet.timebase, 44100, 1, 256).with_pts(packet.pts);
 		Ok(Some(frame))
 	}
 
-	fn flush(&mut self) -> Result<Option<Frame>> {
+	fn flush(&mut self) -> IoResult<Option<Frame>> {
 		Ok(None)
 	}
 }
@@ -55,12 +55,12 @@ struct MockEncoder {
 }
 
 impl Encoder for MockEncoder {
-	fn encode(&mut self, frame: Frame) -> Result<Option<Packet>> {
+	fn encode(&mut self, frame: Frame) -> IoResult<Option<Packet>> {
 		let packet = Packet::new(frame.data, 0, self.timebase).with_pts(frame.pts);
 		Ok(Some(packet))
 	}
 
-	fn flush(&mut self) -> Result<Option<Packet>> {
+	fn flush(&mut self) -> IoResult<Option<Packet>> {
 		Ok(None)
 	}
 }
@@ -70,7 +70,7 @@ struct MockTransform {
 }
 
 impl Transform for MockTransform {
-	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
 		for chunk in frame.data.chunks_exact_mut(2) {
 			let sample = i16::from_le_bytes([chunk[0], chunk[1]]);
 			let modified = sample.saturating_mul(self.multiplier);
