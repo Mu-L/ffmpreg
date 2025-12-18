@@ -1,5 +1,5 @@
 use ffmpreg::core::{Frame, Timebase, Transform};
-use ffmpreg::transform::{Gain, Normalize, TransformChain, parse_transform};
+use ffmpreg::transform::{Normalize, TransformChain, Volume, parse_transform};
 
 fn create_test_frame(samples: Vec<i16>) -> Frame {
 	let data: Vec<u8> = samples.iter().flat_map(|s| s.to_le_bytes()).collect();
@@ -26,7 +26,7 @@ fn test_chain_empty() {
 #[test]
 fn test_chain_single_transform() {
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(2.0)));
+	chain.add(Box::new(Volume::new(2.0)));
 
 	assert!(!chain.is_empty());
 
@@ -40,8 +40,8 @@ fn test_chain_single_transform() {
 #[test]
 fn test_chain_multiple_transforms() {
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(2.0)));
-	chain.add(Box::new(Gain::new(2.0)));
+	chain.add(Box::new(Volume::new(2.0)));
+	chain.add(Box::new(Volume::new(2.0)));
 
 	let frame = create_test_frame(vec![100]);
 	let result = chain.apply(frame).unwrap();
@@ -53,7 +53,7 @@ fn test_chain_multiple_transforms() {
 #[test]
 fn test_chain_gain_then_normalize() {
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(0.5)));
+	chain.add(Box::new(Volume::new(0.5)));
 	chain.add(Box::new(Normalize::new(1.0)));
 
 	let frame = create_test_frame(vec![1000, -1000]);
@@ -68,7 +68,7 @@ fn test_chain_gain_then_normalize() {
 fn test_chain_normalize_then_gain() {
 	let mut chain = TransformChain::new();
 	chain.add(Box::new(Normalize::new(0.5)));
-	chain.add(Box::new(Gain::new(2.0)));
+	chain.add(Box::new(Volume::new(2.0)));
 
 	let frame = create_test_frame(vec![1000, -1000]);
 	let result = chain.apply(frame).unwrap();
@@ -86,7 +86,7 @@ fn test_chain_name() {
 #[test]
 fn test_chain_preserves_metadata() {
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(1.0)));
+	chain.add(Box::new(Volume::new(1.0)));
 
 	let samples: Vec<i16> = vec![100, 200];
 	let data: Vec<u8> = samples.iter().flat_map(|s| s.to_le_bytes()).collect();
@@ -101,15 +101,15 @@ fn test_chain_preserves_metadata() {
 }
 
 #[test]
-fn test_parse_transform_gain() {
-	let transform = parse_transform("gain=2.0").unwrap();
-	assert_eq!(transform.name(), "gain");
+fn test_parse_transform_volume() {
+	let transform = parse_transform("volume=2.0").unwrap();
+	assert_eq!(transform.name(), "volume");
 }
 
 #[test]
-fn test_parse_transform_gain_integer() {
-	let transform = parse_transform("gain=3").unwrap();
-	assert_eq!(transform.name(), "gain");
+fn test_parse_transform_volume_integer() {
+	let transform = parse_transform("volume=3").unwrap();
+	assert_eq!(transform.name(), "volume");
 }
 
 #[test]
@@ -131,14 +131,14 @@ fn test_parse_transform_unknown() {
 }
 
 #[test]
-fn test_parse_transform_gain_missing_value() {
-	let result = parse_transform("gain");
+fn test_parse_transform_volume_missing_value() {
+	let result = parse_transform("volume");
 	assert!(result.is_err());
 }
 
 #[test]
-fn test_parse_transform_gain_invalid_value() {
-	let result = parse_transform("gain=abc");
+fn test_parse_transform_volume_invalid_value() {
+	let result = parse_transform("volume=abc");
 	assert!(result.is_err());
 }
 
@@ -151,9 +151,9 @@ fn test_chain_default() {
 #[test]
 fn test_chain_three_transforms() {
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(0.5)));
+	chain.add(Box::new(Volume::new(0.5)));
 	chain.add(Box::new(Normalize::new(1.0)));
-	chain.add(Box::new(Gain::new(0.5)));
+	chain.add(Box::new(Volume::new(0.5)));
 
 	let frame = create_test_frame(vec![1000, -1000]);
 	let result = chain.apply(frame).unwrap();

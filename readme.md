@@ -11,7 +11,7 @@ To install the command-line tool, run:
 
 ```bash
 cargo install ffmpreg
-````
+```
 
 This downloads and compiles `ffmpreg`, placing the binary in your Cargo bin
 directory.
@@ -185,14 +185,14 @@ ffmpreg -i input.wav -o output.wav --apply gain=1.5 --apply normalize=0.9
 
 ## Formats
 
-* **WAV**: uncompressed audio, suitable for lossless pipelines.
-* **Y4M**: raw video frames with a text-based header.
+- **WAV**: uncompressed audio, suitable for lossless pipelines.
+- **Y4M**: raw video frames with a text-based header.
 
 Codecs:
 
-* **PCM**: uncompressed 16-bit audio, multi-channel support.
-* **ADPCM**: adaptive differential audio compression.
-* **Raw video**: passes through YUV frame data unchanged.
+- **PCM**: uncompressed 16-bit audio, multi-channel support.
+- **ADPCM**: adaptive differential audio compression.
+- **Raw video**: passes through YUV frame data unchanged.
 
 Video processing follows the same pipeline as audio:
 
@@ -216,11 +216,11 @@ println!("Frame rate: {}/{}", format.framerate_num, format.framerate_den);
 
 ## CLI Reference
 
-* `-i`: input file or glob pattern.
-* `-o`: output file or directory.
-* `--show`: inspection mode, prints frame metadata.
-* `--apply`: add transform to pipeline (multiple allowed).
-* `--codec`: select output codec (default matches input).
+- `-i`: input file or glob pattern.
+- `-o`: output file or directory.
+- `--show`: inspection mode, prints frame metadata.
+- `--apply`: add transform to pipeline (multiple allowed).
+- `--codec`: select output codec (default matches input).
 
 ## Goals
 
@@ -232,6 +232,3 @@ usage, reducing panics, and keeping external dependencies to a minimum. The
 goal is to provide a high-performance media processing engine that is easy to
 understand, integrate, and extend while maintaining strong Rust safety
 guarantees.
-
-
-

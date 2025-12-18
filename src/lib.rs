@@ -3,4 +3,5 @@ pub mod codecs;
 pub mod container;
 pub mod core;
 pub mod io;
+pub mod show;
 pub mod transform;

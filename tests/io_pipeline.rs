@@ -7,7 +7,7 @@ use ffmpreg::io::{
 	BufferedReader, BufferedWriter, Cursor, MediaRead, MediaSeek, MediaWrite, ReadPrimitives,
 	SeekFrom, WritePrimitives,
 };
-use ffmpreg::transform::{Gain, Normalize, TransformChain};
+use ffmpreg::transform::{Normalize, TransformChain, Volume};
 
 #[test]
 fn test_cursor_read_write_roundtrip() {
@@ -136,7 +136,7 @@ fn test_wav_with_gain_transform_io() {
 	let mut decoder = PcmDecoder::new(format);
 	let timebase = Timebase::new(1, format.sample_rate);
 	let mut encoder = PcmEncoder::new(timebase);
-	let mut gain = Gain::new(2.0);
+	let mut gain = Volume::new(2.0);
 
 	loop {
 		match reader.read_packet().unwrap() {
@@ -171,7 +171,7 @@ fn test_wav_with_transform_chain_io() {
 	let mut encoder = PcmEncoder::new(timebase);
 
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(0.5)));
+	chain.add(Box::new(Volume::new(0.5)));
 	chain.add(Box::new(Normalize::new(0.9)));
 
 	loop {

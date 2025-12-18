@@ -1,8 +1,10 @@
 pub mod decode;
 pub mod encode;
+pub mod ms;
 
 pub use decode::AdpcmDecoder;
 pub use encode::AdpcmEncoder;
+pub use ms::{MsAdpcmDecoder, MsAdpcmEncoder};
 
 const INDEX_TABLE: [i8; 16] = [-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8];
 

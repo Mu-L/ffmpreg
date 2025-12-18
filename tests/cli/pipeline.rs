@@ -126,7 +126,7 @@ fn test_pipeline_wav_with_transform() {
 		input_path.to_str().unwrap().to_string(),
 		Some(output_path.to_str().unwrap().to_string()),
 		false,
-		vec!["gain=2.0".to_string()],
+		vec!["volume=2.0".to_string()],
 	);
 
 	pipeline.run().unwrap();
@@ -150,7 +150,7 @@ fn test_pipeline_wav_chained_transforms() {
 		input_path.to_str().unwrap().to_string(),
 		Some(output_path.to_str().unwrap().to_string()),
 		false,
-		vec!["gain=1.5".to_string(), "normalize".to_string()],
+		vec!["volume=1.5".to_string(), "normalize".to_string()],
 	);
 
 	pipeline.run().unwrap();

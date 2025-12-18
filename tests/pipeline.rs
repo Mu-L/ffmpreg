@@ -10,7 +10,7 @@ use ffmpreg::codecs::{PcmDecoder, PcmEncoder, RawVideoDecoder, RawVideoEncoder};
 use ffmpreg::container::{WavFormat, WavReader, WavWriter, Y4mReader, Y4mWriter};
 use ffmpreg::core::{Decoder, Demuxer, Encoder, Muxer, Timebase, Transform};
 use ffmpreg::io::{BufferedWriter, Cursor};
-use ffmpreg::transform::{Gain, Normalize, TransformChain};
+use ffmpreg::transform::{Normalize, TransformChain, Volume};
 
 #[test]
 fn test_full_wav_pipeline() {
@@ -52,7 +52,7 @@ fn test_full_wav_pipeline_with_gain() {
 	let mut decoder = PcmDecoder::new(format);
 	let timebase = Timebase::new(1, format.sample_rate);
 	let mut encoder = PcmEncoder::new(timebase);
-	let mut gain = Gain::new(2.0);
+	let mut gain = Volume::new(2.0);
 
 	while let Some(packet) = reader.read_packet().unwrap() {
 		if let Some(frame) = decoder.decode(packet).unwrap() {
@@ -82,7 +82,7 @@ fn test_full_wav_pipeline_with_chain() {
 	let mut encoder = PcmEncoder::new(timebase);
 
 	let mut chain = TransformChain::new();
-	chain.add(Box::new(Gain::new(0.5)));
+	chain.add(Box::new(Volume::new(0.5)));
 	chain.add(Box::new(Normalize::new(0.9)));
 
 	while let Some(packet) = reader.read_packet().unwrap() {

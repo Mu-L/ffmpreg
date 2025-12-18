@@ -58,8 +58,130 @@ Todo
   - [x] Roundtrip tests for each codec
 
 - Chained filters
-  > Apply multiple transforms in sequence
-  - [x] CLI: ffmpreg --apply gain=2.0 --apply normalize
-  - [x] Create transforms/normalize.rs
-  - [x] Pipeline applies filters in sequence
-  - [x] Test audio with two chained filters
+   > Apply multiple transforms in sequence
+   - [x] CLI: ffmpreg --apply gain=2.0 --apply normalize
+   - [x] Create transforms/normalize.rs
+   - [x] Pipeline applies filters in sequence
+   - [x] Test audio with two chained filters
+
+- Audio Containers (Complete)
+
+   > Support multiple audio formats
+   - [x] WAV format (containers/wav/read.rs, write.rs)
+   - [x] FLAC format (containers/flac/read.rs, write.rs)
+   - [x] OGG Vorbis (containers/ogg/read.rs, write.rs)
+   - [x] MP3 format (containers/mp3/read.rs, write.rs)
+   - [x] Roundtrip tests for all audio containers
+
+- Video Containers (Complete)
+
+   > Support video formats
+   - [x] Y4M (already done above)
+   - [x] AVI format (containers/avi/read.rs, write.rs)
+   - [x] MP4 format (containers/mp4/read.rs, write.rs)
+   - [x] Roundtrip tests for video containers
+
+- Audio Transforms (Complete)
+
+   > Effects and filters for audio
+   - [x] Volume/Gain (transforms/volume.rs)
+   - [x] Normalize (transforms/normalize.rs)
+   - [x] RMS Limiter (transforms/rms_limiter.rs)
+   - [x] Peak Limiter (transforms/peak_limiter.rs)
+   - [x] Resample (transforms/resample.rs)
+   - [x] Channel Mixer (transforms/channel_mixer.rs)
+   - [x] EQ (transforms/eq.rs)
+   - [x] Highpass Filter (transforms/highpass.rs)
+   - [x] Lowpass Filter (transforms/lowpass.rs)
+   - [x] Fade In/Out (transforms/fade.rs)
+   - [x] Crossfade (transforms/fade.rs)
+
+- Video Transforms (Complete)
+
+   > Transformations for video frames
+   - [x] Scale/Resize (transforms/video/scale.rs)
+   - [x] Rotate (transforms/video/rotate.rs)
+   - [x] Flip H/V (transforms/video/flip.rs)
+   - [x] Crop (transforms/video/crop.rs)
+   - [x] Pad (transforms/video/pad.rs)
+   - [x] Brightness (transforms/video/brightness.rs)
+   - [x] Contrast (transforms/video/contrast.rs)
+   - [x] Blur (transforms/video/blur.rs)
+   - [x] Framerate Converter (transforms/video/framerate.rs)
+
+- Testing & Quality
+
+   > Comprehensive test coverage
+   - [x] Unit tests (217 passing)
+   - [x] Transform tests (volume, normalize, filters, chain)
+   - [x] Container tests (WAV, Y4M roundtrip)
+   - [x] Codec tests (PCM, ADPCM)
+   - [x] Pipeline integration tests
+   - [x] CLI argument parsing tests
+   - [x] Batch processing tests
+   - [ ] Roundtrip validation for all containers
+   - [ ] Error handling edge cases
+   - [ ] Large file stress tests
+
+- CLI Enhancements
+
+   > Improve command-line interface
+   - [x] Basic args: -i, -o, --apply, --show, --codec
+   - [x] Transform chaining (multiple --apply flags)
+   - [x] Batch processing (wildcards, directories)
+   - [x] Format auto-detection
+   - [ ] --dry-run (preview without writing)
+   - [ ] --verbose (logging and statistics)
+   - [ ] --force (overwrite existing files)
+   - [ ] --quality / --bitrate flags
+   - [ ] --metadata preserve|strip
+   - [ ] Progress bars for batch operations
+
+- Documentation
+
+   > Code and user documentation
+   - [ ] Rustdoc comments for public APIs
+   - [ ] Transform trait documentation
+   - [ ] Codec/container feature matrix
+   - [ ] CLI examples and help text
+   - [ ] README with examples
+   - [ ] Architecture guide
+   - [ ] Codec compatibility guide
+
+- Color Space & Metadata
+
+   > Advanced media features
+   - [ ] YUV ↔ RGB conversion
+   - [ ] Chroma subsampling (4:4:4 → 4:2:0)
+   - [ ] ID3 tags for MP3 (read/write)
+   - [ ] Vorbis comments for FLAC
+   - [ ] MP4 iTunes metadata
+   - [ ] WAV LIST INFO chunks
+
+- Streaming & I/O
+
+   > Enhanced input/output capabilities
+   - [ ] Read from stdin (-i -)
+   - [ ] Write to stdout (-o -)
+   - [ ] Pipe support for Unix tools
+   - [ ] Unbuffered mode for low-latency
+
+- Performance & Optimization
+
+   > Speed and memory improvements
+   - [ ] Codec throughput benchmarks
+   - [ ] Transform overhead profiling
+   - [ ] SIMD optimizations for PCM
+   - [ ] Buffer pooling/allocation reduction
+   - [ ] Parallel transform execution
+   - [ ] Stream-based processing (avoid full load)
+
+- Advanced Features
+
+   > Future extensions
+   - [ ] Multi-stream support (audio + video)
+   - [ ] Stream selection (--audio 0, --video 1)
+   - [ ] More codecs (Opus, VP9, AV1, HEVC)
+   - [ ] Effects library (Reverb, Compression, Distortion, etc.)
+   - [ ] Multiband processing
+   - [ ] Sidechain support

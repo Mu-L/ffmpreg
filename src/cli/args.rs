@@ -15,6 +15,18 @@ pub struct Args {
 	#[arg(long, help = "Show frame information (like ffprobe)")]
 	pub show: bool,
 
+	#[arg(long, help = "Output in JSON format")]
+	pub json: bool,
+
+	#[arg(long, value_name = "INDEX", help = "Filter by stream index")]
+	pub stream: Option<usize>,
+
+	#[arg(long, value_name = "N", default_value = "10", help = "Number of frames to preview")]
+	pub frames: usize,
+
+	#[arg(long = "hex-limit", value_name = "N", default_value = "8", help = "Hex bytes per frame")]
+	pub hex_limit: usize,
+
 	#[arg(
 		long = "apply",
 		value_name = "FILTER",
