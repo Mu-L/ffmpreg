@@ -60,7 +60,10 @@ pub fn decode_huffman_pair(
 	}
 }
 
-pub fn decode_huffman_quad(reader: &mut BitReader, table_num: usize) -> Option<(i32, i32, i32, i32)> {
+pub fn decode_huffman_quad(
+	reader: &mut BitReader,
+	table_num: usize,
+) -> Option<(i32, i32, i32, i32)> {
 	let (v, w, x, y) = if table_num == 0 {
 		let bits = reader.read_bits(4)? as usize;
 		QUAD_TABLE_A[bits]
