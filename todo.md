@@ -1,187 +1,136 @@
-io → container → codec → transform → codec → container → io
+### IO / Pipeline
 
-Todo
+[x] `Packet` structure
+[x] `Frame` structure
+[x] `Timebase` structure
+[x] Create pipeline connector: read → decode → encode → write
+[x] Test pipeline with simple WAV file
+[x] Support batch processing (multiple files, wildcards)
 
-- Minimal WAV pipeline
+### Containers (Audio)
 
-  > End-to-end pipeline, audible audio.
-  - [x] Create project and basic folders (core, containers/wav, codecs/pcm, cli)
-  - [x] Implement Packet, Frame, Timebase
-  - [x] Read WAV and produce Packets (containers/wav/read.rs)
-  - [x] Write Packets back (containers/wav/write.rs)
-  - [x] PCM passthrough codec (decode → encode)
-  - [x] Connect pipeline: read → decode → encode → write
-  - [x] Minimal CLI: ffmpreg -i input.wav -o output.wav
-  - [x] Test with a simple WAV file
+[x] WAV read/write
+[x] FLAC read/write
+[x] MP3 read/write (decode first)
+[x] OGG Vorbis read/write
+[x] Roundtrip validation for core audio containers
+[ ] Support stdin/stdout for audio
+[ ] Auto-detect audio format
 
-- Frame inspection / Media info
+### Containers (Video)
 
-  > Show internal frame info, minimal ffprobe alternative.
-  - [x] Add CLI option --show
-  - [x] Iterate over Packets → Frames
-  - [x] Display pts, sample count, channels, sample rate
-  - [x] Test output with example WAV
+[x] Y4M read/write
+[x] AVI read/write
+[x] MP4 read/write
+[ ] MKV read/write
+[ ] WebM read/write
+[ ] Roundtrip validation for core video containers
+[ ] Support multiple streams (audio + video + subtitles)
+[ ] Stream selection via CLI
 
-- Basic transform
+### Codecs (Audio)
 
-  > Apply simple operation on frames (e.g., gain)
-  - [x] Create transforms/gain.rs
-  - [x] Implement trait Transform<T>
-  - [x] Integrate pipeline: read → decode → transform → encode → write
-  - [x] CLI: ffmpreg --apply gain=2.0
-  - [x] Test amplified audio
+[x] PCM decode + encode
+[x] ADPCM decode + encode
+[x] FLAC decode + encode
+[x] MP3 Layer3 decode
+[x] G.711 µ-law & A-law utils
+[ ] Opus decode + encode
+[ ] AAC decode
+[ ] WMA decode
+[ ] AC3/E-AC3 decode
+[ ] DTS decode
+[x] Skip ID3v2 when reading
+[ ] MP3 encoding
+[ ] VBR support
+[ ] Full ID3v2 read/write
+[ ] Gapless playback info
+[ ] Error recovery for corrupted frames
 
-- Multi-file / batch
+### Codecs (Video)
 
-  > Process multiple files using the same pipeline
-  - [x] CLI accepts multiple files or wildcard (folder/\*.wav)
-  - [x] Iterate files → pipeline
-  - [x] Create separate output for each file
-  - [x] Test with 2-3 WAV files
+[x] Raw Video/YUV decode + encode
+[ ] H.264/AVC decode
+[ ] VP9 decode
+[ ] AV1 decode
+[ ] HEVC/H.265 decode
 
-- More containers
+### Streams
 
-  > Add raw video support (Y4M)
-  - [x] Create containers/y4m/read.rs and write.rs
-  - [x] Parse Y4M header (width, height, framerate, colorspace, aspect ratio)
-  - [x] Produce Packets/Frames
-  - [x] Minimal pipeline: decode → encode → write
-  - [x] CLI: ffmpreg -i input.y4m -o output.y4m
-  - [x] Test with a Y4M file (lossless passthrough verified)
+[ ] multiple streams per container (audio, video, subtitles)
+[ ] Stream selection via CLI e.g (`--audio 0`, `--video 1`, `--subtitle 0`)
+[ ] Demux streams into individual Packets
+[ ] Synchronize streams (audio/video PTS/DTS)
+[ ] Real-time decoding of selected streams
+[ ] Switch streams dynamically during playback
+[ ] Stream iteration API for pipeline
+[ ] Unit tests for multi-stream containers
+[ ] Network streaming: HTTP, RTSP, HLS, DASH
+[ ] Real-time buffering and jitter compensation for network streams
 
-- More codecs
+### Subtitles
 
-  > ADPCM, multi-channel PCM
-  - [x] Add ADPCM codec
-  - [x] Support multi-channel PCM
-  - [x] Pipeline: decode → transform → encode → write
-  - [x] Roundtrip tests for each codec
+[ ] Support SRT subtitles
+[ ] Support ASS/SSA subtitles
+[ ] Support embedded subtitles in containers (MKV, MP4)
+[ ] Subtitle track selection and switching
+[ ] Subtitle rendering API for pipeline integration
 
-- Chained filters
-   > Apply multiple transforms in sequence
-   - [x] CLI: ffmpreg --apply gain=2.0 --apply normalize
-   - [x] Create transforms/normalize.rs
-   - [x] Pipeline applies filters in sequence
-   - [x] Test audio with two chained filters
+### Transforms (Audio)
 
-- Audio Containers (Complete)
+[x] Volume/Gain
+[x] Normalize
+[x] Fade In/Out / Crossfade
+[x] Channel Mixer
+[x] Resample
+[ ] EQ
+[x] Support chaining multiple audio transforms
 
-   > Support multiple audio formats
-   - [x] WAV format (containers/wav/read.rs, write.rs)
-   - [x] FLAC format (containers/flac/read.rs, write.rs)
-   - [x] OGG Vorbis (containers/ogg/read.rs, write.rs)
-   - [x] MP3 format (containers/mp3/read.rs, write.rs)
-   - [x] Roundtrip tests for all audio containers
+### Transforms (Video)
 
-- Video Containers (Complete)
+[x] Scale/Resize
+[x] Rotate
+[x] Crop / Pad
+[x] Brightness / Contrast
+[x] Framerate Converter
 
-   > Support video formats
-   - [x] Y4M (already done above)
-   - [x] AVI format (containers/avi/read.rs, write.rs)
-   - [x] MP4 format (containers/mp4/read.rs, write.rs)
-   - [x] Roundtrip tests for video containers
+### CLI
 
-- Audio Transforms (Complete)
+[x] Basic args: -i, -o, --apply, --show, --codec
+[x] Transform chaining via multiple `--apply` flags
+[x] Batch processing (wildcards, directories)
+[x] Format auto-detection
+[x] Show frame info (`--show`, `--json`, `--stream`, `--frames`)
+[ ] --dry-run
+[ ] --verbose
+[ ] --force overwrite
+[ ] --quality / --bitrate flags
+[ ] --metadata preserve/strip
+[ ] Progress bar
+[x] stdin/stdout support (-i -, -o -)
 
-   > Effects and filters for audio
-   - [x] Volume/Gain (transforms/volume.rs)
-   - [x] Normalize (transforms/normalize.rs)
-   - [x] RMS Limiter (transforms/rms_limiter.rs)
-   - [x] Peak Limiter (transforms/peak_limiter.rs)
-   - [x] Resample (transforms/resample.rs)
-   - [x] Channel Mixer (transforms/channel_mixer.rs)
-   - [x] EQ (transforms/eq.rs)
-   - [x] Highpass Filter (transforms/highpass.rs)
-   - [x] Lowpass Filter (transforms/lowpass.rs)
-   - [x] Fade In/Out (transforms/fade.rs)
-   - [x] Crossfade (transforms/fade.rs)
+### Testing & Quality
 
-- Video Transforms (Complete)
+[x] Unit tests for core structures
+[x] Tests for audio transforms
+[x] Tests for video transforms
+[x] Tests for audio containers
+[x] Tests for video containers
+[x] Tests for codecs
+[x] Pipeline integration tests
+[x] CLI argument parsing tests
+[ ] Roundtrip validation for all containers/codecs
+[ ] Edge case error handling
+[ ] Large file stress testing
 
-   > Transformations for video frames
-   - [x] Scale/Resize (transforms/video/scale.rs)
-   - [x] Rotate (transforms/video/rotate.rs)
-   - [x] Flip H/V (transforms/video/flip.rs)
-   - [x] Crop (transforms/video/crop.rs)
-   - [x] Pad (transforms/video/pad.rs)
-   - [x] Brightness (transforms/video/brightness.rs)
-   - [x] Contrast (transforms/video/contrast.rs)
-   - [x] Blur (transforms/video/blur.rs)
-   - [x] Framerate Converter (transforms/video/framerate.rs)
+### Advanced / Optional
 
-- Testing & Quality
-
-   > Comprehensive test coverage
-   - [x] Unit tests (217 passing)
-   - [x] Transform tests (volume, normalize, filters, chain)
-   - [x] Container tests (WAV, Y4M roundtrip)
-   - [x] Codec tests (PCM, ADPCM)
-   - [x] Pipeline integration tests
-   - [x] CLI argument parsing tests
-   - [x] Batch processing tests
-   - [ ] Roundtrip validation for all containers
-   - [ ] Error handling edge cases
-   - [ ] Large file stress tests
-
-- CLI Enhancements
-
-   > Improve command-line interface
-   - [x] Basic args: -i, -o, --apply, --show, --codec
-   - [x] Transform chaining (multiple --apply flags)
-   - [x] Batch processing (wildcards, directories)
-   - [x] Format auto-detection
-   - [ ] --dry-run (preview without writing)
-   - [ ] --verbose (logging and statistics)
-   - [ ] --force (overwrite existing files)
-   - [ ] --quality / --bitrate flags
-   - [ ] --metadata preserve|strip
-   - [ ] Progress bars for batch operations
-
-- Documentation
-
-   > Code and user documentation
-   - [ ] Rustdoc comments for public APIs
-   - [ ] Transform trait documentation
-   - [ ] Codec/container feature matrix
-   - [ ] CLI examples and help text
-   - [ ] README with examples
-   - [ ] Architecture guide
-   - [ ] Codec compatibility guide
-
-- Color Space & Metadata
-
-   > Advanced media features
-   - [ ] YUV ↔ RGB conversion
-   - [ ] Chroma subsampling (4:4:4 → 4:2:0)
-   - [ ] ID3 tags for MP3 (read/write)
-   - [ ] Vorbis comments for FLAC
-   - [ ] MP4 iTunes metadata
-   - [ ] WAV LIST INFO chunks
-
-- Streaming & I/O
-
-   > Enhanced input/output capabilities
-   - [ ] Read from stdin (-i -)
-   - [ ] Write to stdout (-o -)
-   - [ ] Pipe support for Unix tools
-   - [ ] Unbuffered mode for low-latency
-
-- Performance & Optimization
-
-   > Speed and memory improvements
-   - [ ] Codec throughput benchmarks
-   - [ ] Transform overhead profiling
-   - [ ] SIMD optimizations for PCM
-   - [ ] Buffer pooling/allocation reduction
-   - [ ] Parallel transform execution
-   - [ ] Stream-based processing (avoid full load)
-
-- Advanced Features
-
-   > Future extensions
-   - [ ] Multi-stream support (audio + video)
-   - [ ] Stream selection (--audio 0, --video 1)
-   - [ ] More codecs (Opus, VP9, AV1, HEVC)
-   - [ ] Effects library (Reverb, Compression, Distortion, etc.)
-   - [ ] Multiband processing
-   - [ ] Sidechain support
+[ ] YUV ↔ RGB conversion
+[ ] Chroma subsampling
+[ ] Streaming / pipe / unbuffered mode
+[ ] Parallel transform execution
+[ ] Multi-stream selection dynamic
+[ ] Advanced audio effects: Compressor / Expander / Noise Gate
+[ ] Advanced audio: Delay / Reverb / Chorus / Phaser
+[ ] Advanced audio: Multiband / Sidechain / Saturation / Distortion
+[ ] Full metadata support: ID3v2, Vorbis comments, MP4/iTunes, WAV LIST INFO
