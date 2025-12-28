@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 use std::f32::consts::PI;
 
 pub struct Lowpass {
@@ -78,7 +78,7 @@ impl Lowpass {
 }
 
 impl Transform for Lowpass {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			if self.sample_rate != audio_frame.sample_rate {
 				self.calculate_coeffs(audio_frame.sample_rate);

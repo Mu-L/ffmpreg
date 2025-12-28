@@ -1,5 +1,5 @@
 use crate::core::Frame;
-use crate::io::IoResult;
+use crate::io::Result;
 
 #[derive(Debug, Clone, Copy)]
 pub enum FlipDirection {
@@ -26,7 +26,7 @@ impl Flip {
 		Self::new(width, height, FlipDirection::Vertical)
 	}
 
-	pub fn apply_yuv420(&self, frame: &Frame) -> IoResult<Frame> {
+	pub fn apply_yuv420(&self, frame: &Frame) -> Result<Frame> {
 		if let Some(video_frame) = frame.video() {
 			let y_size = (self.width * self.height) as usize;
 			let uv_size = y_size / 4;

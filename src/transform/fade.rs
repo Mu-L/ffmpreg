@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct FadeIn {
 	duration_samples: usize,
@@ -14,7 +14,7 @@ impl FadeIn {
 }
 
 impl Transform for FadeIn {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let channels = audio_frame.channels as usize;
 			let samples_per_channel = audio_frame.nb_samples;
@@ -67,7 +67,7 @@ impl FadeOut {
 }
 
 impl Transform for FadeOut {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let channels = audio_frame.channels as usize;
 			let samples_per_channel = audio_frame.nb_samples;
@@ -146,7 +146,7 @@ impl Crossfade {
 }
 
 impl Transform for Crossfade {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if !self.in_crossfade {
 			return Ok(frame);
 		}

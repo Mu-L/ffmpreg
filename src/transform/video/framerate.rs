@@ -1,5 +1,5 @@
 use crate::core::Frame;
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct FrameRateConverter {
 	src_fps_num: u32,
@@ -32,7 +32,7 @@ impl FrameRateConverter {
 		Self::new(60, 1, 30, 1)
 	}
 
-	pub fn process(&mut self, frame: Frame) -> IoResult<Vec<Frame>> {
+	pub fn process(&mut self, frame: Frame) -> Result<Vec<Frame>> {
 		let src_fps = self.src_fps_num as f64 / self.src_fps_den as f64;
 		let dst_fps = self.dst_fps_num as f64 / self.dst_fps_den as f64;
 
@@ -73,7 +73,7 @@ impl FrameRateConverter {
 		Ok(output_frames)
 	}
 
-	pub fn flush(&mut self) -> IoResult<Vec<Frame>> {
+	pub fn flush(&mut self) -> Result<Vec<Frame>> {
 		Ok(Vec::new())
 	}
 }

@@ -1,4 +1,3 @@
-use crate::io::{IoError, IoResult, MediaRead, MediaWrite};
 use std::io::{Read, Write};
 
 pub struct StdinAdapter;
@@ -9,9 +8,9 @@ impl StdinAdapter {
 	}
 }
 
-impl MediaRead for StdinAdapter {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
-		std::io::stdin().read(buf).map_err(IoError::from)
+impl crate::io::MediaRead for StdinAdapter {
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
+		std::io::stdin().read(buf).map_err(crate::io::Error::from)
 	}
 }
 
@@ -23,13 +22,13 @@ impl StdoutAdapter {
 	}
 }
 
-impl MediaWrite for StdoutAdapter {
-	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
-		std::io::stdout().write(buf).map_err(IoError::from)
+impl crate::io::MediaWrite for StdoutAdapter {
+	fn write(&mut self, buf: &[u8]) -> crate::io::Result<usize> {
+		std::io::stdout().write(buf).map_err(crate::io::Error::from)
 	}
 
-	fn flush(&mut self) -> IoResult<()> {
-		std::io::stdout().flush().map_err(IoError::from)
+	fn flush(&mut self) -> crate::io::Result<()> {
+		std::io::stdout().flush().map_err(crate::io::Error::from)
 	}
 }
 
@@ -38,13 +37,13 @@ pub enum StdioSource {
 	File(std::fs::File),
 }
 
-impl MediaRead for StdioSource {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+impl crate::io::MediaRead for StdioSource {
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
 		match self {
 			StdioSource::Stdin(stdin) => stdin.read(buf),
 			StdioSource::File(file) => {
 				use std::io::Read;
-				file.read(buf).map_err(IoError::from)
+				file.read(buf).map_err(crate::io::Error::from)
 			}
 		}
 	}
@@ -55,23 +54,23 @@ pub enum StdioSink {
 	File(std::fs::File),
 }
 
-impl MediaWrite for StdioSink {
-	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+impl crate::io::MediaWrite for StdioSink {
+	fn write(&mut self, buf: &[u8]) -> crate::io::Result<usize> {
 		match self {
 			StdioSink::Stdout(stdout) => stdout.write(buf),
 			StdioSink::File(file) => {
 				use std::io::Write;
-				file.write(buf).map_err(IoError::from)
+				file.write(buf).map_err(crate::io::Error::from)
 			}
 		}
 	}
 
-	fn flush(&mut self) -> IoResult<()> {
+	fn flush(&mut self) -> crate::io::Result<()> {
 		match self {
 			StdioSink::Stdout(stdout) => stdout.flush(),
 			StdioSink::File(file) => {
 				use std::io::Write;
-				file.flush().map_err(IoError::from)
+				file.flush().map_err(crate::io::Error::from)
 			}
 		}
 	}

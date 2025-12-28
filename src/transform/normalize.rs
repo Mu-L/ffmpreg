@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct Normalize {
 	target_peak: f32,
@@ -16,7 +16,7 @@ impl Normalize {
 }
 
 impl Transform for Normalize {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let samples = audio_frame.data.len() / 2;
 			if samples == 0 {

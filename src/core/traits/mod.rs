@@ -1,11 +1,11 @@
 pub mod decode;
-pub mod demux;
+pub mod demuxer;
 pub mod encode;
-pub mod filter;
-pub mod mux;
+pub mod muxer;
+pub mod transform;
 
 pub use decode::Decoder;
-pub use demux::Demuxer;
+pub use demuxer::Demuxer;
 pub use encode::Encoder;
-pub use filter::Transform;
-pub use mux::Muxer;
+pub use muxer::Muxer;
+pub use transform::Transform;

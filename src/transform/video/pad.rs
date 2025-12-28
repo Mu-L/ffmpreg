@@ -1,5 +1,5 @@
 use crate::core::Frame;
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct Pad {
 	src_width: u32,
@@ -56,7 +56,7 @@ impl Pad {
 		(self.dst_width, self.dst_height)
 	}
 
-	pub fn apply_yuv420(&self, frame: &Frame) -> IoResult<Frame> {
+	pub fn apply_yuv420(&self, frame: &Frame) -> Result<Frame> {
 		if let Some(video_frame) = frame.video() {
 			let src_y_size = (self.src_width * self.src_height) as usize;
 			let src_uv_size = src_y_size / 4;

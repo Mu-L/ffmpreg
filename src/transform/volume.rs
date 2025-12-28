@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct Volume {
 	factor: f32,
@@ -12,7 +12,7 @@ impl Volume {
 }
 
 impl Transform for Volume {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let samples = audio_frame.data.len() / 2;
 			for i in 0..samples {

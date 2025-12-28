@@ -1,19 +1,17 @@
-use crate::io::{IoError, IoResult};
-
 pub const DEFAULT_BUFFER_SIZE: usize = 8192;
 
 pub trait MediaRead {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize>;
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize>;
 }
 
 pub trait ReadPrimitives: MediaRead {
-	fn read_exact(&mut self, buf: &mut [u8]) -> IoResult<()> {
+	fn read_exact(&mut self, buf: &mut [u8]) -> crate::io::Result<()> {
 		let mut filled = 0;
 		while filled < buf.len() {
 			match self.read(&mut buf[filled..]) {
-				Ok(0) => return Err(IoError::unexpected_eof()),
+				Ok(0) => return Err(crate::io::Error::unexpected_eof()),
 				Ok(n) => filled += n,
-				Err(e) if matches!(e.kind(), crate::io::IoErrorKind::Interrupted) => continue,
+				Err(e) if matches!(e.kind(), crate::io::ErrorKind::Interrupted) => continue,
 				Err(e) => return Err(e),
 			}
 		}
@@ -21,126 +19,126 @@ pub trait ReadPrimitives: MediaRead {
 	}
 
 	#[inline]
-	fn read_u8(&mut self) -> IoResult<u8> {
+	fn read_u8(&mut self) -> crate::io::Result<u8> {
 		let mut buf = [0u8; 1];
 		self.read_exact(&mut buf)?;
 		Ok(buf[0])
 	}
 
 	#[inline]
-	fn read_u16_be(&mut self) -> IoResult<u16> {
+	fn read_u16_be(&mut self) -> crate::io::Result<u16> {
 		let mut buf = [0u8; 2];
 		self.read_exact(&mut buf)?;
 		Ok(u16::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_u16_le(&mut self) -> IoResult<u16> {
+	fn read_u16_le(&mut self) -> crate::io::Result<u16> {
 		let mut buf = [0u8; 2];
 		self.read_exact(&mut buf)?;
 		Ok(u16::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_u32_be(&mut self) -> IoResult<u32> {
+	fn read_u32_be(&mut self) -> crate::io::Result<u32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(u32::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_u32_le(&mut self) -> IoResult<u32> {
+	fn read_u32_le(&mut self) -> crate::io::Result<u32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(u32::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_u64_be(&mut self) -> IoResult<u64> {
+	fn read_u64_be(&mut self) -> crate::io::Result<u64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(u64::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_u64_le(&mut self) -> IoResult<u64> {
+	fn read_u64_le(&mut self) -> crate::io::Result<u64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(u64::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i8(&mut self) -> IoResult<i8> {
+	fn read_i8(&mut self) -> crate::io::Result<i8> {
 		let mut buf = [0u8; 1];
 		self.read_exact(&mut buf)?;
 		Ok(buf[0] as i8)
 	}
 
 	#[inline]
-	fn read_i16_be(&mut self) -> IoResult<i16> {
+	fn read_i16_be(&mut self) -> crate::io::Result<i16> {
 		let mut buf = [0u8; 2];
 		self.read_exact(&mut buf)?;
 		Ok(i16::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i16_le(&mut self) -> IoResult<i16> {
+	fn read_i16_le(&mut self) -> crate::io::Result<i16> {
 		let mut buf = [0u8; 2];
 		self.read_exact(&mut buf)?;
 		Ok(i16::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i32_be(&mut self) -> IoResult<i32> {
+	fn read_i32_be(&mut self) -> crate::io::Result<i32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(i32::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i32_le(&mut self) -> IoResult<i32> {
+	fn read_i32_le(&mut self) -> crate::io::Result<i32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(i32::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i64_be(&mut self) -> IoResult<i64> {
+	fn read_i64_be(&mut self) -> crate::io::Result<i64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(i64::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_i64_le(&mut self) -> IoResult<i64> {
+	fn read_i64_le(&mut self) -> crate::io::Result<i64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(i64::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_f32_be(&mut self) -> IoResult<f32> {
+	fn read_f32_be(&mut self) -> crate::io::Result<f32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(f32::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_f32_le(&mut self) -> IoResult<f32> {
+	fn read_f32_le(&mut self) -> crate::io::Result<f32> {
 		let mut buf = [0u8; 4];
 		self.read_exact(&mut buf)?;
 		Ok(f32::from_le_bytes(buf))
 	}
 
 	#[inline]
-	fn read_f64_be(&mut self) -> IoResult<f64> {
+	fn read_f64_be(&mut self) -> crate::io::Result<f64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(f64::from_be_bytes(buf))
 	}
 
 	#[inline]
-	fn read_f64_le(&mut self) -> IoResult<f64> {
+	fn read_f64_le(&mut self) -> crate::io::Result<f64> {
 		let mut buf = [0u8; 8];
 		self.read_exact(&mut buf)?;
 		Ok(f64::from_le_bytes(buf))
@@ -177,8 +175,8 @@ impl<R> StdReadAdapter<R> {
 
 impl<R: std::io::Read> MediaRead for StdReadAdapter<R> {
 	#[inline]
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
-		self.inner.read(buf).map_err(IoError::from)
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
+		self.inner.read(buf).map_err(crate::io::Error::from)
 	}
 }
 
@@ -232,7 +230,7 @@ impl<R, const N: usize> BufferedReader<R, N> {
 }
 
 impl<R: MediaRead, const N: usize> BufferedReader<R, N> {
-	fn fill_buf(&mut self) -> IoResult<&[u8]> {
+	fn fill_buf(&mut self) -> crate::io::Result<&[u8]> {
 		if self.pos >= self.filled {
 			self.discard_buffer();
 			self.filled = self.inner.read(&mut self.buffer)?;
@@ -242,7 +240,7 @@ impl<R: MediaRead, const N: usize> BufferedReader<R, N> {
 }
 
 impl<R: MediaRead, const N: usize> MediaRead for BufferedReader<R, N> {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
 		if buf.len() >= N && self.pos >= self.filled {
 			self.discard_buffer();
 			return self.inner.read(buf);
@@ -257,7 +255,7 @@ impl<R: MediaRead, const N: usize> MediaRead for BufferedReader<R, N> {
 }
 
 impl MediaRead for &[u8] {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
 		let amt = core::cmp::min(self.len(), buf.len());
 		let (a, b) = self.split_at(amt);
 		buf[..amt].copy_from_slice(a);
@@ -298,14 +296,14 @@ impl<W, const N: usize> BufferedWriter<W, N> {
 }
 
 impl<W: crate::io::MediaWrite, const N: usize> BufferedWriter<W, N> {
-	fn flush_buf(&mut self) -> IoResult<()> {
+	fn flush_buf(&mut self) -> crate::io::Result<()> {
 		if !self.buffer.is_empty() {
 			let mut written = 0;
 			while written < self.buffer.len() {
 				match self.inner.write(&self.buffer[written..]) {
-					Ok(0) => return Err(IoError::write_zero()),
+					Ok(0) => return Err(crate::io::Error::write_zero()),
 					Ok(n) => written += n,
-					Err(e) if matches!(e.kind(), crate::io::IoErrorKind::Interrupted) => continue,
+					Err(e) if matches!(e.kind(), crate::io::ErrorKind::Interrupted) => continue,
 					Err(e) => return Err(e),
 				}
 			}
@@ -316,7 +314,7 @@ impl<W: crate::io::MediaWrite, const N: usize> BufferedWriter<W, N> {
 }
 
 impl<W: crate::io::MediaWrite, const N: usize> crate::io::MediaWrite for BufferedWriter<W, N> {
-	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+	fn write(&mut self, buf: &[u8]) -> crate::io::Result<usize> {
 		if self.buffer.len() + buf.len() > N {
 			self.flush_buf()?;
 		}
@@ -327,7 +325,7 @@ impl<W: crate::io::MediaWrite, const N: usize> crate::io::MediaWrite for Buffere
 		Ok(buf.len())
 	}
 
-	fn flush(&mut self) -> IoResult<()> {
+	fn flush(&mut self) -> crate::io::Result<()> {
 		self.flush_buf()?;
 		self.inner.flush()
 	}

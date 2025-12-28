@@ -1,5 +1,5 @@
-use crate::core::{Frame, Timebase, Transform};
-use crate::io::IoResult;
+use crate::core::{Frame, Time, Transform};
+use crate::io::Result;
 
 pub struct Resample {
 	target_rate: u32,
@@ -54,10 +54,10 @@ impl Resample {
 }
 
 impl Transform for Resample {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		let frame_pts = frame.pts;
 		let stream_index = frame.stream_index;
-		let _timebase = frame.timebase.clone();
+		let _time = frame.time.clone();
 
 		if let Some(audio_frame) = frame.audio_mut() {
 			let src_rate = audio_frame.sample_rate;
@@ -90,7 +90,7 @@ impl Transform for Resample {
 				}
 			}
 
-			let new_timebase = Timebase::new(1, self.target_rate);
+			let new_time = Time::new(1, self.target_rate);
 			let new_pts = (frame_pts as f64 * self.target_rate as f64 / src_rate as f64) as i64;
 
 			let new_frame_audio = crate::core::FrameAudio {
@@ -100,7 +100,7 @@ impl Transform for Resample {
 				nb_samples: output_samples_per_channel,
 			};
 
-			Ok(Frame::new_audio(new_frame_audio, new_timebase, stream_index).with_pts(new_pts))
+			Ok(Frame::new_audio(new_frame_audio, new_time, stream_index).with_pts(new_pts))
 		} else {
 			Ok(frame)
 		}

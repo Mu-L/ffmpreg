@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct PeakLimiter {
 	threshold: f32,
@@ -21,7 +21,7 @@ impl PeakLimiter {
 }
 
 impl Transform for PeakLimiter {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let samples = audio_frame.data.len() / 2;
 

@@ -1,5 +1,3 @@
-use crate::io::{IoResult, MediaRead, MediaSeek, MediaWrite, SeekFrom};
-
 pub struct Cursor<T> {
 	inner: T,
 	pos: u64,
@@ -37,8 +35,8 @@ impl<T> Cursor<T> {
 	}
 }
 
-impl<T: AsRef<[u8]>> MediaRead for Cursor<T> {
-	fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+impl<T: AsRef<[u8]>> crate::io::MediaRead for Cursor<T> {
+	fn read(&mut self, buf: &mut [u8]) -> crate::io::Result<usize> {
 		let slice = self.inner.as_ref();
 		let pos = self.pos as usize;
 		if pos >= slice.len() {
@@ -52,8 +50,8 @@ impl<T: AsRef<[u8]>> MediaRead for Cursor<T> {
 	}
 }
 
-impl MediaWrite for Cursor<Vec<u8>> {
-	fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+impl crate::io::MediaWrite for Cursor<Vec<u8>> {
+	fn write(&mut self, buf: &[u8]) -> crate::io::Result<usize> {
 		let pos = self.pos as usize;
 		let len = self.inner.len();
 
@@ -74,21 +72,21 @@ impl MediaWrite for Cursor<Vec<u8>> {
 	}
 
 	#[inline]
-	fn flush(&mut self) -> IoResult<()> {
+	fn flush(&mut self) -> crate::io::Result<()> {
 		Ok(())
 	}
 }
 
-impl<T: AsRef<[u8]>> MediaSeek for Cursor<T> {
-	fn seek(&mut self, pos: SeekFrom) -> IoResult<u64> {
+impl<T: AsRef<[u8]>> crate::io::MediaSeek for Cursor<T> {
+	fn seek(&mut self, pos: crate::io::SeekFrom) -> crate::io::Result<u64> {
 		let len = self.inner.as_ref().len() as i64;
 		let new_pos = match pos {
-			SeekFrom::Start(n) => n as i64,
-			SeekFrom::End(n) => len + n,
-			SeekFrom::Current(n) => self.pos as i64 + n,
+			crate::io::SeekFrom::Start(n) => n as i64,
+			crate::io::SeekFrom::End(n) => len + n,
+			crate::io::SeekFrom::Current(n) => self.pos as i64 + n,
 		};
 		if new_pos < 0 {
-			return Err(crate::io::IoError::invalid_data("seek to negative position"));
+			return Err(crate::io::Error::invalid_data("seek to negative position"));
 		}
 		self.pos = new_pos as u64;
 		Ok(self.pos)

@@ -1,5 +1,5 @@
 use crate::core::Frame;
-use crate::io::IoResult;
+use crate::io::Result;
 
 pub struct Brightness {
 	factor: f32,
@@ -12,7 +12,7 @@ impl Brightness {
 		Self { factor, width, height }
 	}
 
-	pub fn apply_yuv420(&self, frame: &Frame) -> IoResult<Frame> {
+	pub fn apply_yuv420(&self, frame: &Frame) -> Result<Frame> {
 		if let Some(video_frame) = frame.video() {
 			let y_size = (self.width * self.height) as usize;
 			let _uv_size = y_size / 4;

@@ -1,5 +1,5 @@
 use crate::core::{Frame, Transform};
-use crate::io::IoResult;
+use crate::io::Result;
 
 #[derive(Debug, Clone, Copy)]
 pub enum ChannelLayout {
@@ -46,7 +46,7 @@ impl ChannelMixer {
 }
 
 impl Transform for ChannelMixer {
-	fn apply(&mut self, mut frame: Frame) -> IoResult<Frame> {
+	fn apply(&mut self, mut frame: Frame) -> Result<Frame> {
 		if let Some(audio_frame) = frame.audio_mut() {
 			let src_channels = audio_frame.channels;
 			let target_channels = match self.target_layout {
