@@ -2,8 +2,8 @@ use crate::core::{Decoder, Encoder, Packet};
 use crate::io;
 
 pub struct Transcoder {
-	decoder: Box<dyn Decoder>,
-	encoder: Box<dyn Encoder>,
+	pub decoder: Box<dyn Decoder>,
+	pub encoder: Box<dyn Encoder>,
 }
 
 impl Transcoder {

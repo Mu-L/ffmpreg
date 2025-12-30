@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct WavMetadata {
-	fields: HashMap<String, String>,
+	pub fields: HashMap<String, String>,
 }
 
 impl WavMetadata {

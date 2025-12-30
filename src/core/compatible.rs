@@ -155,8 +155,7 @@ impl Compatible {
 		wav.supports_audio([
 			codecs::audio::PCM_S16LE,
 			codecs::audio::PCM_S24LE,
-			codecs::audio::PCM_F32,
-			codecs::audio::ADPCM_IMA_WAV,
+			codecs::audio::PCM_F32LE,
 		]);
 		graph.insert(container::WAV, wav);
 

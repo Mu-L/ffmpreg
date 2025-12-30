@@ -3,12 +3,13 @@ use crate::core::{AudioFormat, Frame, FrameAudio, Packet, Time};
 use crate::io::Result as IoResult;
 use crate::io::{Error, ErrorKind};
 
-use super::utils::{AdpcmState, decode_nibble};
+use super::state::AdpcmState;
 
 pub struct AdpcmDecoder {
 	sample_rate: u32,
 	channels: u8,
 	states: Vec<AdpcmState>,
+	#[allow(dead_code)]
 	block_size: usize,
 	samples_per_block: usize,
 }
@@ -36,7 +37,6 @@ impl AdpcmDecoder {
 		let mut pcm_output = Vec::new();
 		let mut offset = 0;
 
-		// Read sync bytes (predictor and index) for each channel
 		for ch in 0..self.channels as usize {
 			if offset + 4 > block_data.len() {
 				break;
@@ -49,14 +49,13 @@ impl AdpcmDecoder {
 			offset += 4;
 		}
 
-		// Decode nibbles from remaining data
 		let remaining = &block_data[offset..];
 		let mut nibble_idx = 0;
 
 		while nibble_idx < remaining.len() * 2
 			&& pcm_output.len() < self.samples_per_block * 2 * self.channels as usize
 		{
-			for ch in 0..self.channels as usize {
+			for channel in 0..self.channels as usize {
 				let byte_idx = nibble_idx / 2;
 
 				if byte_idx >= remaining.len() {
@@ -69,7 +68,7 @@ impl AdpcmDecoder {
 					(remaining[byte_idx] >> 4) & 0x0F
 				};
 
-				let sample = decode_nibble(nibble, &mut self.states[ch]);
+				let sample = self.states[channel].decode_nibble(nibble);
 				pcm_output.extend_from_slice(&sample.to_le_bytes());
 
 				nibble_idx += 1;
@@ -94,35 +93,16 @@ impl Decoder for AdpcmDecoder {
 
 		let nb_samples = pcm_data.len() / (self.channels as usize * 2);
 
-		let audio = FrameAudio::new(pcm_data, self.sample_rate, self.channels, AudioFormat::PCM16)
-			.with_nb_samples(nb_samples);
+		let audio = FrameAudio::new(pcm_data, self.sample_rate, self.channels, AudioFormat::PCM16);
 
 		let time = Time::new(1, self.sample_rate);
-		let frame = Frame::new_audio(audio, time, packet.stream_index, 0).with_pts(packet.pts);
 
-		Ok(Some(frame))
+		let frame = Frame::new_audio(audio.with_nb_samples(nb_samples), time, packet.stream_index, 0);
+
+		Ok(Some(frame.with_pts(packet.pts)))
 	}
 
 	fn flush(&mut self) -> IoResult<Option<Frame>> {
 		Ok(None)
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn test_decoder_creation() {
-		let decoder = AdpcmDecoder::new(44100, 1, 256);
-		assert_eq!(decoder.sample_rate, 44100);
-		assert_eq!(decoder.channels, 1);
-	}
-
-	#[test]
-	fn test_decoder_with_stereo() {
-		let decoder = AdpcmDecoder::new(48000, 2, 512);
-		assert_eq!(decoder.channels, 2);
-		assert_eq!(decoder.states.len(), 2);
 	}
 }

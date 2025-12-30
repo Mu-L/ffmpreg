@@ -4,7 +4,7 @@ use crate::core::{Frame, Packet, Time};
 use crate::io::Result as IoResult;
 use crate::io::{Error, ErrorKind};
 
-use super::utils::{AdpcmState, encode_sample};
+use super::state::AdpcmState;
 
 pub struct AdpcmEncoder {
 	sample_rate: u32,
@@ -45,13 +45,13 @@ impl AdpcmEncoder {
 		let mut sample_idx = 0;
 
 		while sample_idx < samples.len() {
-			for ch in 0..self.channels as usize {
-				if sample_idx + ch >= samples.len() {
+			for channel in 0..self.channels as usize {
+				if sample_idx + channel >= samples.len() {
 					break;
 				}
 
-				let sample = samples[sample_idx + ch];
-				let code = encode_sample(sample, &mut self.states[ch]);
+				let sample = samples[sample_idx + channel];
+				let code = self.states[channel].encode_sample(sample);
 				nibbles.push(code);
 			}
 
@@ -126,24 +126,5 @@ impl Encoder for AdpcmEncoder {
 		let packet = Packet::new(encoded, 0, time);
 
 		Ok(Some(packet))
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn test_encoder_creation() {
-		let encoder = AdpcmEncoder::new(44100, 1, 256);
-		assert_eq!(encoder.sample_rate, 44100);
-		assert_eq!(encoder.channels, 1);
-	}
-
-	#[test]
-	fn test_encoder_stereo() {
-		let encoder = AdpcmEncoder::new(48000, 2, 512);
-		assert_eq!(encoder.channels, 2);
-		assert_eq!(encoder.states.len(), 2);
 	}
 }

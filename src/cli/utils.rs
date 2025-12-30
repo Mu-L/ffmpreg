@@ -1,12 +1,9 @@
 use crate::io;
-use crate::io::Result;
-use std::path::Path;
 
-#[allow(dead_code)]
-pub fn extension(path: &str) -> Result<String> {
-	Path::new(path)
+pub fn get_extension(path: &str) -> io::Result<String> {
+	std::path::Path::new(path)
 		.extension()
-		.and_then(|ext| ext.to_str())
+		.and_then(|e| e.to_str())
 		.map(|s| s.to_lowercase())
 		.ok_or_else(|| io::Error::invalid_data("no file extension"))
 }

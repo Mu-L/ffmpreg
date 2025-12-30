@@ -1,4 +1,5 @@
-use super::utils::{BitReader, get_sample_rate_from_index, is_valid_channel_config};
+use super::bit::BitReader;
+use super::utils::{get_sample_rate_from_index, is_valid_channel_config};
 use crate::io::Result as IoResult;
 use crate::io::{Error, ErrorKind};
 
@@ -26,7 +27,7 @@ impl ADTSHeader {
 		if data.len() < 7 {
 			return Err(Error::with_message(
 				ErrorKind::InvalidData,
-				"ADTS header must be at least 7 bytes",
+				"adts header must be at least 7 bytes",
 			));
 		}
 
@@ -34,7 +35,7 @@ impl ADTSHeader {
 
 		let syncword = reader.read_bits(12) as u16;
 		if syncword != 0xFFF {
-			return Err(Error::with_message(ErrorKind::InvalidData, "Invalid ADTS sync word"));
+			return Err(Error::with_message(ErrorKind::InvalidData, "invalid ADTS sync word"));
 		}
 
 		let id = reader.read_bit();
@@ -49,7 +50,7 @@ impl ADTSHeader {
 		if !is_valid_channel_config(channel_config) {
 			return Err(Error::with_message(
 				ErrorKind::InvalidData,
-				"Invalid ADTS channel configuration",
+				"invalid ADTS channel configuration",
 			));
 		}
 

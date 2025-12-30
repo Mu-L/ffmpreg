@@ -50,6 +50,14 @@ impl Streams {
 		Self { inner }
 	}
 
+	pub fn new_empty() -> Self {
+		Self { inner: Vec::new() }
+	}
+
+	pub fn add(&mut self, stream: Stream) {
+		self.inner.push(stream);
+	}
+
 	pub fn all(&self) -> &[Stream] {
 		&self.inner
 	}

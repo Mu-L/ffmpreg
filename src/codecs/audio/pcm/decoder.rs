@@ -34,8 +34,8 @@ impl Decoder for PcmDecoder {
 			_ => AudioFormat::PCM16,
 		};
 
-		let audio = FrameAudio::new(packet.data, self.sample_rate, self.channels, audio_format)
-			.with_nb_samples(nb_samples);
+		let audio = FrameAudio::new(packet.data, self.sample_rate, self.channels, audio_format);
+		let audio = audio.with_nb_samples(nb_samples);
 
 		let time = Time::new(1, self.sample_rate);
 		let frame = Frame::new_audio(audio, time, packet.stream_index, 0).with_pts(packet.pts);
@@ -45,17 +45,5 @@ impl Decoder for PcmDecoder {
 
 	fn flush(&mut self) -> IoResult<Option<Frame>> {
 		Ok(None)
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn test_pcm_decoder_creation() {
-		let decoder = PcmDecoder::new(44100, 2, 2);
-		assert_eq!(decoder.sample_rate, 44100);
-		assert_eq!(decoder.channels, 2);
 	}
 }

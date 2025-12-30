@@ -1,3 +1,4 @@
+use crate::codecs;
 use crate::codecs::audio::aac::ADTSParser;
 use crate::core::{Demuxer, Packet, Stream, StreamKind, Time, stream};
 use crate::io::{Error, MediaRead, Result};
@@ -34,7 +35,7 @@ impl<R: MediaRead> AACDemuxer<R> {
 		let mut parser = ADTSParser::new();
 		parser.feed(&peek_buffer);
 
-		let codec_name = "aac";
+		let codec_name = codecs::audio::AAC;
 		let time = Time::new(1, sample_rate);
 		let stream = Stream::new(0, 0, StreamKind::Audio, codec_name.to_string(), time);
 		let streams = stream::Streams::new(vec![stream]);
