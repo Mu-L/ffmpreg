@@ -74,13 +74,12 @@ batch("in/*.wav", "out/")
 > Apply multiple transforms in sequence
 
 ```rust
-use ffmpreg::transforms::normalize::Normalize;
+use ffmpreg::transforms::{Normalize, Volume};
 
-let gain = Gain::new(2.0);
+let volume = Volume::new(2.0);
 let normalize = Normalize::new();
 
-let processed: Vec<Frame<i16>> = frames.iter()
-    .map(|f| gain.process(f))
-    .map(|f| normalize.process(&f))
-    .collect();
+let frames: Vec<Frame> = frames.iter()
+  .map(|frame| volume.apply(frame))
+  .map(|frame| normalize.apply(frame)).collect();
 ```

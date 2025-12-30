@@ -1,19 +1,19 @@
-use super::time::Timebase;
+use crate::core::time::Time;
 
 #[derive(Debug, Clone)]
 pub struct Packet {
 	pub data: Vec<u8>,
 	pub pts: i64,
 	pub dts: i64,
-	pub timebase: Timebase,
+	pub time: Time,
 	pub stream_index: usize,
 	pub keyframe: bool,
 	pub discard: bool,
 }
 
 impl Packet {
-	pub fn new(data: Vec<u8>, stream_index: usize, timebase: Timebase) -> Self {
-		Self { data, pts: 0, dts: 0, timebase, stream_index, keyframe: false, discard: false }
+	pub fn new(data: Vec<u8>, stream_index: usize, time: Time) -> Self {
+		Self { data, pts: 0, dts: 0, time, stream_index, keyframe: false, discard: false }
 	}
 
 	pub fn with_pts(mut self, pts: i64) -> Self {

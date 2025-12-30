@@ -1,10 +1,12 @@
 mod cursor;
+mod file;
 mod reader;
 mod seek;
 pub mod stdio;
 mod writer;
 
 pub use cursor::Cursor;
+pub use file::File;
 pub use reader::{
 	BufferedReader, BufferedWriter, DEFAULT_BUFFER_SIZE, MediaRead, ReadPrimitives, StdReadAdapter,
 };
@@ -13,7 +15,7 @@ pub use seek::{MediaSeek, SeekFrom, SeekableReader, SeekableWriter, StdSeekAdapt
 pub use writer::{MediaWrite, StdWriteAdapter, WritePrimitives};
 
 #[derive(Debug)]
-pub enum IoErrorKind {
+pub enum ErrorKind {
 	UnexpectedEof,
 	WriteZero,
 	Interrupted,
@@ -27,79 +29,80 @@ pub enum IoErrorKind {
 }
 
 #[derive(Debug)]
-pub struct IoError {
-	kind: IoErrorKind,
-	message: Option<&'static str>,
+pub struct Error {
+	kind: ErrorKind,
+	message: Option<String>,
 }
 
-impl IoError {
+impl Error {
 	#[inline]
-	pub const fn new(kind: IoErrorKind) -> Self {
+	pub const fn new(kind: ErrorKind) -> Self {
 		Self { kind, message: None }
 	}
 
 	#[inline]
-	pub const fn with_message(kind: IoErrorKind, message: &'static str) -> Self {
+	pub fn with_message(kind: ErrorKind, message: impl Into<String>) -> Self {
+		let message: String = message.into();
 		Self { kind, message: Some(message) }
 	}
 
 	#[inline]
-	pub const fn kind(&self) -> &IoErrorKind {
+	pub fn kind(&self) -> &ErrorKind {
 		&self.kind
 	}
 
 	#[inline]
-	pub const fn message(&self) -> Option<&'static str> {
-		self.message
+	pub fn message(&self) -> Option<&String> {
+		self.message.as_ref()
 	}
 
 	#[inline]
-	pub const fn unexpected_eof() -> Self {
-		Self::new(IoErrorKind::UnexpectedEof)
+	pub fn unexpected_eof() -> Self {
+		Self::new(ErrorKind::UnexpectedEof)
 	}
 
 	#[inline]
-	pub const fn write_zero() -> Self {
-		Self::new(IoErrorKind::WriteZero)
+	pub fn write_zero() -> Self {
+		Self::new(ErrorKind::WriteZero)
 	}
 
 	#[inline]
-	pub const fn invalid_data(message: &'static str) -> Self {
-		Self::with_message(IoErrorKind::InvalidData, message)
+	pub fn invalid_data(message: impl Into<String>) -> Self {
+		Self::with_message(ErrorKind::InvalidData, message.into())
 	}
 
 	#[inline]
-	pub const fn not_seekable() -> Self {
-		Self::new(IoErrorKind::NotSeekable)
+	pub fn not_seekable() -> Self {
+		Self::new(ErrorKind::NotSeekable)
 	}
 }
 
-impl core::fmt::Display for IoError {
+impl core::fmt::Display for Error {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		match &self.message {
-			Some(msg) => write!(f, "{:?}: {}", self.kind, msg),
+			Some(message) => write!(f, "{}", message),
 			None => write!(f, "{:?}", self.kind),
 		}
 	}
 }
 
-impl std::error::Error for IoError {}
+impl std::error::Error for Error {}
 
-impl From<std::io::Error> for IoError {
+impl From<std::io::Error> for Error {
 	fn from(err: std::io::Error) -> Self {
 		let kind = match err.kind() {
-			std::io::ErrorKind::UnexpectedEof => IoErrorKind::UnexpectedEof,
-			std::io::ErrorKind::WriteZero => IoErrorKind::WriteZero,
-			std::io::ErrorKind::Interrupted => IoErrorKind::Interrupted,
-			std::io::ErrorKind::InvalidData => IoErrorKind::InvalidData,
-			std::io::ErrorKind::PermissionDenied => IoErrorKind::PermissionDenied,
-			std::io::ErrorKind::NotFound => IoErrorKind::NotFound,
-			std::io::ErrorKind::AlreadyExists => IoErrorKind::AlreadyExists,
-			std::io::ErrorKind::WouldBlock => IoErrorKind::WouldBlock,
-			_ => IoErrorKind::Other,
+			std::io::ErrorKind::UnexpectedEof => ErrorKind::UnexpectedEof,
+			std::io::ErrorKind::WriteZero => ErrorKind::WriteZero,
+			std::io::ErrorKind::Interrupted => ErrorKind::Interrupted,
+			std::io::ErrorKind::InvalidData => ErrorKind::InvalidData,
+			std::io::ErrorKind::PermissionDenied => ErrorKind::PermissionDenied,
+			std::io::ErrorKind::NotFound => ErrorKind::NotFound,
+			std::io::ErrorKind::AlreadyExists => ErrorKind::AlreadyExists,
+			std::io::ErrorKind::WouldBlock => ErrorKind::WouldBlock,
+			_ => ErrorKind::Other,
 		};
 		Self::new(kind)
 	}
 }
 
-pub type IoResult<T> = Result<T, IoError>;
+pub type Result<T> = std::result::Result<T, Error>;

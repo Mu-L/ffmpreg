@@ -1,5 +1,8 @@
-pub mod args;
+mod args;
+pub mod color;
+pub mod config;
+pub mod executor;
 pub mod pipeline;
-
-pub use args::Args;
-pub use pipeline::{BatchPipeline, Pipeline, is_batch_pattern, is_directory};
+pub mod transcoder;
+mod utils;
+pub use args::Cli;
