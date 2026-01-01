@@ -25,3 +25,6 @@ playgroud
 # Added by cargo
 
 /target
+
+# Ignore various metadata files
+.DS_Store
