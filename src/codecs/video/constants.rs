@@ -5,10 +5,11 @@ pub const AV1: &str = "av1";
 pub const VP8: &str = "vp8";
 pub const VP9: &str = "vp9";
 
-// sinônimo de H265
+// synonym of H265
 pub const HEVC: &str = "hevc";
 
 // older / legacy codecs
+pub const MPEG1: &str = "mpeg1";
 pub const MPEG2: &str = "mpeg2";
 pub const MPEG4: &str = "mpeg4";
 pub const THEORA: &str = "theora";
@@ -25,6 +26,9 @@ pub const JPEG2000: &str = "jpeg2000";
 pub const PRORES: &str = "prores";
 pub const DNXHD: &str = "dnxhd";
 pub const DNXHR: &str = "dnxhr";
+
+// uncompressed
+pub const RAWVIDEO: &str = "rawvideo";
 
 // experimental / emerging
 pub const VP10: &str = "vp10";

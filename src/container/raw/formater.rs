@@ -34,7 +34,10 @@ impl RawPcmFormat {
 	}
 
 	pub fn byte_rate(&self) -> u32 {
-		self.sample_rate.saturating_mul(self.channels as u32).saturating_mul(self.bytes_per_sample() as u32)
+		self
+			.sample_rate
+			.saturating_mul(self.channels as u32)
+			.saturating_mul(self.bytes_per_sample() as u32)
 	}
 
 	pub fn block_align(&self) -> u16 {

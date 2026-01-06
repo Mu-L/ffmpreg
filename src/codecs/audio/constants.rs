@@ -1,7 +1,8 @@
 // lossy codecs
 pub const AAC: &str = "aac";
-pub const MP3: &str = "mp3";
+pub const MP1: &str = "mp1";
 pub const MP2: &str = "mp2";
+pub const MP3: &str = "mp3";
 pub const OPUS: &str = "opus";
 pub const VORBIS: &str = "vorbis";
 pub const AMR_NB: &str = "amr_nb";
@@ -31,3 +32,7 @@ pub const DSD_LSBF: &str = "dsd_lsbf";
 pub const DSD_MSBF: &str = "dsd_msbf";
 pub const DSD_LSBF_PLANAR: &str = "dsd_lsbf_planar";
 pub const DSD_MSBF_PLANAR: &str = "dsd_msbf_planar";
+
+// rare / legacy
+pub const MUSEPACK: &str = "musepack";
+pub const REALAUDIOL: &str = "realaudiol";

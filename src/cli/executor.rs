@@ -44,7 +44,7 @@ pub fn execute(cli: cli::Cli) -> io::Result<()> {
 				container::WAV => pipeline::wav::run(pipe),
 				container::RAW | container::PCM => pipeline::raw::run(pipe),
 				// container::AAC => pipeline::aac::run(pipe),
-				// container::MKV => pipeline::mkv::run(pipe),
+				container::MKV => pipeline::mkv::run(pipe),
 				container::MOV => pipeline::webm::run(pipe),
 				_ => Err(io::Error::invalid_data(format!("unsupported '{}' format", input_ext))),
 			}
