@@ -222,6 +222,25 @@ println!("Frame rate: {}/{}", format.framerate_num, format.framerate_den);
 - `--apply`: add transform to pipeline (multiple allowed).
 - `--codec`: select output codec (default matches input).
 
+
+## Sponsoring
+
+FFmpReg is an open-source project released under the [Apache 2.0](/LICENSE) License,
+free for any use, including commercial.
+A permissive license helps the project grow and be useful for everyone.
+
+This project takes a huge amount of work, 
+studying codec algorithms and implementing them from scratch.
+
+Your support helps cover internet, energy, and tools,
+and keeps me coding full-time for the community ^-^
+
+If you decide on a one-time contribution of $500 or more, and there’s something I can help you with, please let me know!  
+
+[Support me on Ko-fi](https://ko-fi.com/yazaldefilimone)
+
+
+
 ## Goals
 
 `ffmpreg` aims to be a safe, reliable, and maintainable Rust-native alternative
