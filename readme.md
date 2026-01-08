@@ -5,6 +5,9 @@ directly from the terminal or integrate media processing into Rust applications.
 The project aims to deliver a safe, deterministic, and modular media processing
 engine with a focus on explicit pipelines and developer control.
 
+[Sponsoring](#sponsoring) | [License](/LICENSE) | [Discord](https://discord.gg/jcnfGzwsUk)
+
+
 ## Installation
 
 To install the command-line tool, run:
